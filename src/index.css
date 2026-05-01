@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  --color-morandi-bg: #f5f4f6;
+  --color-morandi-sidebar: #95859c;
+  --color-morandi-purple-light: #d6cfd9;
+  --color-morandi-purple-mid: #b5a8b9;
+  --color-morandi-purple-dark: #95859c;
+  --color-morandi-weekend: #beb4c5;
+  --color-morandi-text: #4a444d;
+  
+  --color-leave-self: #5e8b7e;
+  --color-leave-sys: #6d8299;
+  --color-leave-nat: #996b6b;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-morandi-bg text-morandi-text font-sans antialiased;
+  }
+}
+
+/* 班表 Grid 定義：姓名欄 (160px) + 28 天日期欄 */
+.schedule-grid {
+  display: grid;
+  grid-template-columns: 160px repeat(28, minmax(80px, 1fr));
+}
+
+.cell-transition {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.table-wrapper {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col;
+}
+
+.table-header-cell {
+  @apply p-2 text-center text-[11px] font-bold border-r border-gray-200 flex flex-col justify-center items-center;
+}
+
+.table-body-cell {
+  @apply text-center border-r border-gray-100 min-h-[44px] flex items-center justify-center transition-colors;
+}
+
+/* 下拉選單重置樣式 */
+.cell-dropdown {
+  @apply w-full h-full bg-transparent border-none text-center text-xs cursor-pointer focus:ring-0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.cell-dropdown optgroup {
+  @apply font-black text-[10px] text-gray-400 bg-white py-2 uppercase tracking-widest;
+}
+
+.cell-dropdown option {
+  @apply font-black text-xs text-morandi-sidebar bg-white py-2;
+}
+
+.weekend-bg {
+  background-color: var(--color-morandi-weekend) !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gray-200 rounded-full;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-300;
+}

@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global Helpers
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { return isSignedIn() && request.auth.token.email == 'purplesea1114@gmail.com'; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Validation Helpers
+    function isValidDepartment(data) {
+      return data.keys().hasAll(['id', 'name', 'skills', 'groups']) 
+        && data.id is string && data.name is string && data.skills is list && data.groups is list;
+    }
+
+    function isValidEmployee(data) {
+      return data.keys().hasAll(['id', 'name', 'deptId', 'groupId', 'skills'])
+        && data.id is string && data.name is string && data.deptId is string && data.groupId is string && data.skills is list;
+    }
+
+    function isValidShiftRecord(data) {
+      return data.keys().hasAll(['employeeId', 'date', 'type', 'code', 'isManual'])
+        && data.employeeId is string && data.date is string && data.type in ['shift', 'leave'] && data.code is string;
+    }
+
+    // 1. Departments
+    match /departments/{deptId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() && isValidId(deptId) && isValidDepartment(incoming());
+    }
+
+    // 2. Employees
+    match /employees/{empId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() && isValidId(empId) && isValidEmployee(incoming());
+    }
+
+    // 3. Shift Records
+    match /shiftRecords/{recordId} {
+      allow read: if isSignedIn();
+      allow list: if isSignedIn() && resource.data.employeeId != null;
+      allow create: if isSignedIn() && isValidId(recordId);
+      allow update: if isSignedIn() && isValidId(recordId);
+      allow delete: if isAdmin();
+    }
+
+    // 3b. Daily Requirements
+    match /dailyRequirements/{reqId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(reqId);
+    }
+
+    // 4. Config
+    match /config/global {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

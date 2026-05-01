@@ -1,0 +1,111 @@
+{
+  "entities": {
+    "Department": {
+      "title": "Department",
+      "description": "Organizational unit (section) with groups and skills",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "groups": { "type": "array", "items": { "$ref": "#/entities/GroupConfig" } }
+      },
+      "required": ["id", "name", "skills", "groups"]
+    },
+    "GroupConfig": {
+      "title": "GroupConfig",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "maxLeavePerDay": { "type": "number" },
+        "skillRequirements": { "type": "array", "items": { "$ref": "#/entities/SkillRequirement" } }
+      }
+    },
+    "SkillRequirement": {
+      "title": "SkillRequirement",
+      "type": "object",
+      "properties": {
+        "skill": { "type": "string" },
+        "count": { "type": "number" }
+      }
+    },
+    "Employee": {
+      "title": "Employee",
+      "description": "Staff member details and quotas",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "deptId": { "type": "string" },
+        "groupId": { "type": "string" },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "nationalHolidayQuota": { "type": "number" },
+        "systemLeaveQuota": { "type": "number" }
+      },
+      "required": ["id", "name", "deptId", "groupId", "skills"]
+    },
+    "ShiftRecord": {
+      "title": "ShiftRecord",
+      "description": "Specific attendance or leave record for an employee on a date",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "type": { "type": "string", "enum": ["shift", "leave"] },
+        "code": { "type": "string" },
+        "time": { "type": "string" },
+        "isManual": { "type": "boolean" }
+      }
+    },
+    "DailyRequirement": {
+      "title": "DailyRequirement",
+      "description": "Personnel and skill quotas for a group on a specific date",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "groupId": { "type": "string" },
+        "date": { "type": "string" },
+        "maxLeave": { "type": "number" },
+        "skillRequirements": { "type": "array", "items": { "$ref": "#/entities/SkillRequirement" } }
+      }
+    },
+    "GlobalConfig": {
+      "title": "GlobalConfig",
+      "type": "object",
+      "properties": {
+        "nationalHolidays": { "type": "array", "items": { "type": "string" } },
+        "currentPeriodStart": { "type": "string" },
+        "leaveInterval": {
+          "type": "object",
+          "properties": {
+            "start": { "type": "string" },
+            "end": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/departments/{deptId}": {
+      "schema": "Department",
+      "description": "Organizational departments"
+    },
+    "/employees/{empId}": {
+      "schema": "Employee",
+      "description": "Employee database"
+    },
+    "/shiftRecords/{recordId}": {
+      "schema": "ShiftRecord",
+      "description": "Scheduling records (ID is employeeId_date)"
+    },
+    "/dailyRequirements/{reqId}": {
+      "schema": "DailyRequirement",
+      "description": "Daily personnel and skill requirements for a group (ID is groupId_date)"
+    },
+    "/config/global": {
+      "schema": "GlobalConfig",
+      "description": "Global scheduling settings"
+    }
+  }
+}
